@@ -1,100 +1,144 @@
 import {NextResponse} from 'next/server';
 import clientPromise from '@/lib/mongodb';
 import {Db, MongoClient, ObjectId} from 'mongodb';
+import {DBTheater, theaterUpdateSchema} from "@/app/schemas/theaterSchema";
+import {DB_NAME, THEATERS} from "@/app/constants/constants";
+import {TheaterRoadContext} from "@/app/interface/theaterInterface";
 
-interface TheaterParams {
-    idTheater: string;
-}
+export async function GET(_request: Request, {params}: TheaterRoadContext): Promise<NextResponse> {
+    const {idTheater} = await params;
 
-export async function GET(request: Request): Promise<NextResponse> {
+    if (!ObjectId.isValid(idTheater)) {
+        return NextResponse.json({
+            status: 400,
+            message: "Invalid Theater ID",
+            error: "ID format is incorrect",
+        });
+    }
     try {
-        const {searchParams} = new URL(request.url);
-        const idTheater = searchParams.get("idTheater");
-
-        if (!idTheater || !ObjectId.isValid(idTheater)) {
-            return NextResponse.json(
-                {status: 400, message: "Invalid theater ID", error: "ID format is incorrect"},
-                {status: 400}
-            );
-        }
-
         const client: MongoClient = await clientPromise;
-        const db: Db = client.db("sample_mflix");
+        const db: Db = client.db(DB_NAME);
+        const objectId: ObjectId = ObjectId.createFromHexString(idTheater);
+        const Theater: DBTheater | null = await db
+            .collection<DBTheater>(THEATERS)
+            .findOne({_id: objectId});
 
-        const theater = await db.collection("theaters").findOne({_id: new ObjectId(idTheater)});
-
-        if (!theater) {
-            return NextResponse.json(
-                {status: 404, message: "Theater not found", error: "No theater found with the given ID"},
-                {status: 404}
-            );
+        if (!Theater) {
+            return NextResponse.json({
+                status: 404,
+                message: "Theater not found",
+                error: "No Theater found with the given ID",
+            });
         }
 
-        return NextResponse.json({status: 200, data: theater}, {status: 200});
-
+        return NextResponse.json({status: 200, data: {Theater}});
     } catch (error: any) {
-        console.error("Error fetching theater:", error);
-        return NextResponse.json(
-            {status: 500, message: "Internal Server Error", error: error.message},
-            {status: 500}
-        );
+        return NextResponse.json({
+            status: 500,
+            message: "Internal Server Error",
+            error: error.message,
+        });
     }
 }
 
+export async function PUT(request: Request, {params}: TheaterRoadContext): Promise<NextResponse> {
+    const {idTheater} = await params;
+
+    if (!ObjectId.isValid(idTheater)) {
+        return NextResponse.json({
+            status: 400,
+            message: "Invalid Theater ID",
+            error: "ID format is incorrect",
+        });
+    }
+
+    try {
+        const body = await request.json();
+        const updateData = theaterUpdateSchema.parse(body);
+        const client: MongoClient = await clientPromise;
+        const db: Db = client.db(DB_NAME);
+        const result = await db.collection(THEATERS)
+            .updateOne(
+                {_id: ObjectId.createFromHexString(idTheater)},
+                {$set: updateData}
+            );
+
+        if (result.matchedCount === 0) {
+            return NextResponse.json({
+                status: 404,
+                message: "Theater not found",
+            });
+        }
+
+        return NextResponse.json({
+            status: 200,
+            message: "Theater updated",
+        });
+    } catch (error) {
+        if (error instanceof Error && error.name === 'ZodError') {
+            return NextResponse.json({
+                status: 400,
+                message: "Validation error",
+                errors: error.message,
+            });
+        }
+        if (error instanceof Error) {
+            return NextResponse.json({
+                status: 500,
+                message: "Internal Server Error",
+                error: error.message,
+            });
+        }
+        return NextResponse.json({
+            status: 500,
+            message: "Internal Server Error",
+            error: "Unknown error",
+        });
+    }
+}
+
+export async function DELETE(_request: Request, {params}: TheaterRoadContext): Promise<NextResponse> {
+    const {idTheater} = await params;
+
+    if (!ObjectId.isValid(idTheater)) {
+        return NextResponse.json({
+            status: 400,
+            message: "Invalid Theater ID",
+            error: "ID format is incorrect",
+        });
+    }
+    try {
+        const client: MongoClient = await clientPromise;
+        const db: Db = client.db(DB_NAME);
+        const result = await db.collection(THEATERS)
+            .deleteOne({_id: ObjectId.createFromHexString(idTheater)});
+
+        if (result.deletedCount === 0) {
+            return NextResponse.json({
+                status: 404,
+                message: "Theater not found",
+            });
+        }
+        return NextResponse.json({
+            status: 200,
+            message: "Theater deleted",
+        });
+    } catch (error) {
+        if (error instanceof Error) {
+            return NextResponse.json({
+                status: 500,
+                message: "Internal Server Error",
+                error: error.message,
+            });
+        }
+        return NextResponse.json({
+            status: 500,
+            message: "Internal Server Error",
+            error: "Unknown error",
+        });
+    }
+}
 
 export async function POST(): Promise<NextResponse> {
     return NextResponse.json({status: 405, message: 'Method Not Allowed', error: 'PUT method is not supported'});
 }
-
-// POST Route
-
-/* export async function PUT(req: Request, { params }: { params: TheaterParams }): Promise<NextResponse> {
-    try {
-        const client: MongoClient = await clientPromise;
-        const db: Db = client.db('sample_mflix');
-        const { idTheater } = params;
-        const body = await req.json();
-
-        if (!ObjectId.isValid(idTheater)) {
-            return NextResponse.json({ status: 400, message: 'Invalid theater ID', error: 'ID format is incorrect' });
-        }
-
-        const result = await db.collection('theaters').updateOne(
-            { _id: new ObjectId(idTheater) },
-            { $set: body }
-        );
-
-        if (result.matchedCount === 0) {
-            return NextResponse.json({ status: 404, message: 'Theater not found' });
-        }
-
-        return NextResponse.json({ status: 200, message: 'Theater updated' });
-    } catch (error: any) {
-        return NextResponse.json({ status: 500, message: 'Internal Server Error', error: error.message });
-    }
-}
-*/
-
-/*
-export async function DELETE(req: Request, {params}: { params: TheaterParams }): Promise<NextResponse> {
-    try {
-        const client: MongoClient = await clientPromise;
-        const db: Db = client.db('sample_mflix');
-        const {idTheater} = params;
-
-        if (!ObjectId.isValid(idTheater)) {
-            return NextResponse.json({status: 400, message: 'Invalid theater ID', error: 'ID format is incorrect'});
-        }
-
-        const result = await db.collection('theaters').deleteOne({_id: new ObjectId(idTheater)});
-
-        if (result.deletedCount === 0) {
-            return NextResponse.json({status: 404, message: 'Theater not found'});
-        }
-
-        return NextResponse.json({status: 200, message: 'Theater deleted'});
-    } catch (error: any) {
-        return NextResponse.json({status: 500, message: 'Internal Server Error', error: error.message});
-    }
-}
-*/
