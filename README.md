@@ -1,83 +1,93 @@
-## Example app using MongoDB
+# 🎬 Next.js Movie API
 
-[MongoDB](https://www.mongodb.com/) is a general purpose, document-based, distributed database built for modern application developers and for the cloud era. This example will show you how to connect to and use MongoDB as your backend for your Next.js app.
+## 📌 Overview
+This project is a **RESTful API** built with **Next.js** that allows users to interact with a movie database. It supports CRUD operations for **movies, theaters, and comments** using **MongoDB** as the database and is hosted on **Vercel** for seamless deployment and scalability.
 
-If you want to learn more about MongoDB, visit the following pages:
+## 🚀 Tech Stack
 
-- [MongoDB Atlas](https://mongodb.com/atlas)
-- [MongoDB Documentation](https://docs.mongodb.com/)
+| Technology | Purpose |
+|------------|---------|
+| **Next.js** | API Routes & Serverless Functions |
+| **MongoDB** | NoSQL Database for storing movies, theaters, and comments |
+| **Zod** | Data validation for API requests |
+| **Swagger (OpenAPI)** | API documentation |
+| **Vercel** | Cloud hosting for deployment |
 
-## Deploy your own
+## ☁️ Cloud Architecture
 
-Once you have access to the environment variables you'll need, deploy the example using [Vercel](https://vercel.com?utm_source=github&utm_medium=readme&utm_campaign=next-example) or preview live with [StackBlitz](https://stackblitz.com/github/vercel/next.js/tree/canary/examples/with-mongodb)
+The architecture follows a **serverless, cloud-native** approach using **Vercel’s Serverless Functions** and **MongoDB Atlas**:
 
-[![Deploy with Vercel](https://vercel.com/button)](https://vercel.com/new/clone?project-name=with-mongodb&repository-name=with-mongodb&repository-url=https%3A%2F%2Fgithub.com%2Fvercel%2Fnext.js%2Ftree%2Fcanary%2Fexamples%2Fwith-mongodb&integration-ids=oac_jnzmjqM10gllKmSrG0SGrHOH)
+1. **Client Requests** → API requests are made to Vercel’s serverless functions.
+2. **Vercel Functions** → API routes in Next.js handle CRUD operations.
+3. **MongoDB Atlas** → Persistent storage of movie-related data.
+4. **Caching & Optimization** → Vercel provides automatic caching for faster responses.
 
-## How to use
-
-Execute [`create-next-app`](https://github.com/vercel/next.js/tree/canary/packages/create-next-app) with [npm](https://docs.npmjs.com/cli/init), [Yarn](https://yarnpkg.com/lang/en/docs/cli/create/), or [pnpm](https://pnpm.io) to bootstrap the example:
-
-```bash
-npx create-next-app --example with-mongodb with-mongodb-app
+**Diagram:**
+```
+Client  →  Vercel (Serverless API)  →  MongoDB Atlas (Database)
 ```
 
-```bash
-yarn create next-app --example with-mongodb with-mongodb-app
+## 🛠️ Setup & Installation
+
+### 1️⃣ Clone the Repository
+```sh
+$ git clone https://github.com/yourusername/nextjs-movie-api.git
+$ cd project-dev-svc-cloud
 ```
 
-```bash
-pnpm create next-app --example with-mongodb with-mongodb-app
+### 2️⃣ Install Dependencies
+```sh
+$ npm install
 ```
 
-## Configuration
-
-### Set up a MongoDB database
-
-Set up a MongoDB database either locally or with [MongoDB Atlas for free](https://mongodb.com/atlas).
-
-### Set up environment variables
-
-Copy the `env.local.example` file in this directory to `.env.local` (which will be ignored by Git):
-
-```bash
-cp .env.local.example .env.local
+### 3️⃣ Setup Environment Variables
+Create a `.env.local` file in the root directory and add:
+```sh
+MONGODB_URI=mongodb+srv://youruser:yourpassword@cluster.mongodb.net/movies_db
 ```
 
-Set each variable on `.env.local`:
-
-- `MONGODB_URI` - Your MongoDB connection string. If you are using [MongoDB Atlas](https://mongodb.com/atlas) you can find this by clicking the "Connect" button for your cluster.
-
-### Run Next.js in development mode
-
-```bash
-npm install
-npm run dev
-# or
-yarn install
-yarn dev
-# or
-pnpm install
-pnpm dev
+### 4️⃣ Run Locally
+```sh
+$ npm run dev
 ```
 
-Your app should be up and running on [http://localhost:3000](http://localhost:3000)! If it doesn't work, post on [GitHub discussions](https://github.com/vercel/next.js/discussions).
+### 5️⃣ API Documentation (Swagger UI)
+Visit `http://localhost:3000/api/doc` to view API documentation.
 
-You will either see a message stating "You are connected to MongoDB" or "You are NOT connected to MongoDB". Ensure that you have provided the correct `MONGODB_URI` environment variable.
+## 📌 API Endpoints
 
-When you are successfully connected, you can refer to the [MongoDB Node.js Driver docs](https://mongodb.github.io/node-mongodb-native/3.4/tutorials/collections/) for further instructions on how to query your database.
+### 🎥 Movies
+| Method | Endpoint | Description |
+|--------|---------|-------------|
+| **GET** | `/api/movies` | Get a list of movies |
+| **POST** | `/api/movies` | Add a new movie |
+| **PUT** | `/api/movies/:id` | Update a movie by ID |
+| **DELETE** | `/api/movies/:id` | Remove a movie by ID |
 
-## Deploy on Vercel
+### 🎭 Theaters
+| Method | Endpoint | Description |
+|--------|---------|-------------|
+| **GET** | `/api/theaters` | Get a list of theaters |
+| **POST** | `/api/theaters` | Add a new theater |
+| **PUT** | `/api/theaters/:id` | Update a theater by ID |
+| **DELETE** | `/api/theaters/:id` | Remove a theater by ID |
 
-You can deploy this app to the cloud with [Vercel](https://vercel.com?utm_source=github&utm_medium=readme&utm_campaign=next-example) ([Documentation](https://nextjs.org/docs/deployment)).
+### 💬 Comments
+| Method | Endpoint | Description |
+|--------|---------|-------------|
+| **GET** | `/api/comments` | Get all comments |
+| **POST** | `/api/comments` | Add a comment |
+| **DELETE** | `/api/comments/:id` | Delete a comment |
 
-#### Deploy Your Local Project
+## 🔥 Features
+✅ **Serverless API** with Next.js & Vercel  
+✅ **MongoDB Atlas** for scalable NoSQL storage  
+✅ **Data validation** with Zod  
+✅ **Swagger (OpenAPI)** for API documentation  
+✅ **Automatic Caching** via Vercel  
 
-To deploy your local project to Vercel, push it to GitHub/GitLab/Bitbucket and [import to Vercel](https://vercel.com/new?utm_source=github&utm_medium=readme&utm_campaign=next-example).
-
-**Important**: When you import your project on Vercel, make sure to click on **Environment Variables** and set them to match your `.env.local` file.
-
-#### Deploy from Our Template
-
-Alternatively, you can deploy using our template by clicking on the Deploy button below.
-
-[![Deploy with Vercel](https://vercel.com/button)](https://vercel.com/new/clone?project-name=with-mongodb&repository-name=with-mongodb&repository-url=https%3A%2F%2Fgithub.com%2Fvercel%2Fnext.js%2Ftree%2Fcanary%2Fexamples%2Fwith-mongodb&integration-ids=oac_jnzmjqM10gllKmSrG0SGrHOH)
+## 🛠 Future Enhancements
+- ✅ Implement Authentication (JWT / OAuth)
+- ✅ Rate limiting for API protection
+- ✅ Unit & Integration Testing
+---
